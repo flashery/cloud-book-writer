@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('author')->constrained('users');
             $table->string('title');
             $table->string('description');
-            $table->string('author');
             $table->string('publisher');
             $table->string('isbn');
             $table->string('image');
+            $table->foreignId('updated_by')->constrained('users'); // foreign key on user
             $table->timestamps();
         });
     }

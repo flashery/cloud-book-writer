@@ -15,16 +15,17 @@ class Book extends Model
         'publisher',
         'isbn',
         'image',
-        'user_id',
         'description',
+        'updated_by'
 
     ];
-
-    public function user(){
-        return $this->belongsTo(User::class);
+   
+    public function author(){
+        return $this->belongsTo(User::class, 'author');
     }
 
     public function sections(){
         return $this->hasMany(Section::class);
     }
+    
 }

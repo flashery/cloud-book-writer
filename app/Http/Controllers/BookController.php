@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Auth;
+use Google_Client;
+use Google_Service_Drive;
+use Google_Service_Drive_DriveFile;
 
 class BookController extends Controller
 {
@@ -13,13 +17,13 @@ class BookController extends Controller
      */
     public function index(Request $request)
     {
-        $books = Book::all();
+        $books = Book::with('author')->get();
 
         if($request->is('api/*')) {
             return $books;
         }
 
-        return Inertia::render('Book', ['books' => $books]);
+        return Inertia::render('Book/List', ['books' => $books]);
     }
 
     /**
@@ -27,7 +31,16 @@ class BookController extends Controller
      */
     public function create(Request $request)
     {
-        return Inertia::render('Book/Create');
+        $book = [
+            "title"=> "",
+            "author"=> Auth::user(),
+            "publisher"=> "",
+            "isbn"=> "",
+            "image"=> "",
+            "description"=> ""
+        ];
+            
+        return Inertia::render('Book/Create', ['book'=>  $book]);
     }
 
     /**
@@ -35,11 +48,14 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $result = $request->validate([
             'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
+            'image' => 'required|string',
+            'author' => 'required|integer',
+            'updated_by' => 'required|integer',
         ]);
-        
+    
+       
         return Book::create($request->all());
     }
 
@@ -60,11 +76,17 @@ class BookController extends Controller
      */
     public function edit(Book $book)
     {
+        if(!$book) {
+            return response()->json(['error'=> 'Book not found'], 404);
+        }
+        
+        $book = $book->load('author');
+
         return Inertia::render('Book/Edit', ['book' => $book]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified resource in storage.    
      */
     public function update(Request $request, Book $book)
     {
@@ -84,7 +106,7 @@ class BookController extends Controller
         if(!$book) {
             return response()->json(['error'=> 'Book not found'], 404);
         }
-        
+
         return $book->delete();
     }
 }
