@@ -4,23 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class BookController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $books = Book::all();
+
+        if($request->is('api/*')) {
+            return $books;
+        }
+
+        return Inertia::render('Book', ['books' => $books]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
+        return Inertia::render('Book/Create');
     }
 
     /**
@@ -28,7 +35,12 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'author' => 'required|string|max:255',
+        ]);
+        
+        return Book::create($request->all());
     }
 
     /**
@@ -36,7 +48,11 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        //
+        if($book) {
+            return response()->json(['error'=> 'Book not found'], 404);
+        }
+
+        return $book;
     }
 
     /**
@@ -44,7 +60,7 @@ class BookController extends Controller
      */
     public function edit(Book $book)
     {
-        //
+        return Inertia::render('Book/Edit', ['book' => $book]);
     }
 
     /**
@@ -52,7 +68,12 @@ class BookController extends Controller
      */
     public function update(Request $request, Book $book)
     {
-        //
+        if(!$book) {
+            return response()->json(['error'=> 'Book not found'], 404);
+        }
+
+        return $book->update($request->all());
+
     }
 
     /**
@@ -60,6 +81,10 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
-        //
+        if(!$book) {
+            return response()->json(['error'=> 'Book not found'], 404);
+        }
+        
+        return $book->delete();
     }
 }
