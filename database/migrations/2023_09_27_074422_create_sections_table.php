@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
             $table->foreignId('book_id')->constrained(); // foreign key on book
-            $table->unsingedBigInteger('parent_id');
+            $table->unsignedBigInteger('parent_id');
             $table->string('title');
             $table->string('content');
             $table->integer('nesting_level')->default(0);
             $table->integer('order')->default(0);
-            $table->foreignId('updated_by')->constrained(); // foreign key on user
+            $table->foreignId('updated_by')->constrained('users'); // foreign key on user
             $table->timestamps();
 
             $table->foreign('parent_id')->references('id')->on('sections'); // foreign key on parent

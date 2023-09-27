@@ -29,6 +29,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('sections', function (Blueprint $table) {
+            $table->dropIfExists('sections_book_id_foreign');
+        });
         Schema::dropIfExists('books');
     }
 };
