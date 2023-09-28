@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
             $table->foreignId('book_id')->constrained(); // foreign key on book
-            $table->unsignedBigInteger('parent_id');
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('title');
-            $table->string('content');
+            $table->string('content')->nullable();
             $table->integer('nesting_level')->default(0);
             $table->integer('order')->default(0);
             $table->foreignId('updated_by')->constrained('users'); // foreign key on user

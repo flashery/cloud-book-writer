@@ -109,4 +109,10 @@ class BookController extends Controller
 
         return $book->delete();
     }
+
+
+    public function sections(Book $book) {
+        $sections = $book->sections()->whereNull('parent_id')->with('allDescendants')->get();
+        return response()->json(['sections'=>$sections]);
+    }
 }

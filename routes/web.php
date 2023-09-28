@@ -38,13 +38,14 @@ Route::middleware('auth')->group(function () {
     Route::resource('books', BookController::class)->except([
         'store', 'show', 'update', 'destroy'
     ]);
+    
 
     Route::get('/google-drive/callback', [GoogleDriveController::class, 'handleProviderCallback']);
     Route::get('/google-drive', [GoogleDriveController::class, 'redirectToProvider']);
     Route::post('/google-drive/upload', [GoogleDriveController::class, 'upload'])->name('google-drive.upload');
     Route::get('/google-drive/auth-status', [GoogleDriveController::class, 'checkAuthStatus']);
-});
 
+});
 
 
 require __DIR__.'/auth.php';

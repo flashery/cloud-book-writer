@@ -22,3 +22,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::apiResource('books', BookController::class);
 Route::apiResource('sections', SectionController::class);
+Route::get('/books/{book}/sections', [BookController::class, 'sections'])->name('books.sections');

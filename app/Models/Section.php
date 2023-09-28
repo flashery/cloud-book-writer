@@ -9,12 +9,28 @@ class Section extends Model
 {
     use HasFactory;
 
+    protected $fillable =  [
+        'book_id',
+        'parent_id',
+        'title',
+        'content',
+        'nesting_level',
+        'order',
+        'updated_by'
+    ];
+
     public function book(){
         return $this->belongsTo(Book::class);
     }
 
-    public function children(){
+    public function children()
+    {
         return $this->hasMany(Section::class, 'parent_id');
+    }
+    
+    public function allDescendants()
+    {
+        return $this->children()->with('allDescendants');
     }
 
     public function parent(){

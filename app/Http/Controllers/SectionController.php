@@ -10,9 +10,9 @@ class SectionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $sections = Section::with('author')->get();
+        $sections = Section::with('children')->get();
 
         if($request->is('api/*')) {
             return $sections;
@@ -27,7 +27,7 @@ class SectionController extends Controller
     public function create()
     {
         $book = [
-            'book_id',
+            'book_id'=> 0,
             'parent_id' => 0,
             'title'=>'',
             'content'=> '',
@@ -46,7 +46,6 @@ class SectionController extends Controller
     {
         $result = $request->validate([
             'book_id' => 'required|integer',
-            'parent_id' => 'required|integer',
             'nesting_level' => 'required|integer',
             'order' => 'required|integer',
             'updated_by' => 'required|integer',

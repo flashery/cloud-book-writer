@@ -24,7 +24,9 @@ class GoogleDriveController extends Controller
     {
         session(['previous-url' => url()->previous()]);
         $client = $this->getClient();
+
         $authUrl = $client->createAuthUrl();
+
         return redirect($authUrl);
     }
 
