@@ -16,11 +16,12 @@ docker run --rm \
 ## Install npm packages
 `npm install`
 
-## Run the migration
-`./vendor/bin/sail migrate`
-
 ## Run sail
 `./vendor/bin/sail up`
+
+## Run the migration
+`./vendor/bin/sail artisan migrate`
+
 
 ## Run npm dev server
 `npm run dev`
