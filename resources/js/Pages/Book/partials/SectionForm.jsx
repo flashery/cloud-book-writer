@@ -9,10 +9,10 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import BookSection from "./BookSection";
 import Dropdown from "./Dropdown";
+import { toast } from "react-toastify";
 
-export default function SectionForm({ section, mode }) {
+export default function SectionForm({ section, selectedSection, mode }) {
     const user = usePage().props.auth.user;
-    const [selectedItem, setSelectedItem] = useState(null);
     const { data, setData, get, errors, processing, recentlySuccessful } =
         useForm({
             book_id: section.book_id,
@@ -23,16 +23,44 @@ export default function SectionForm({ section, mode }) {
             order: section.order,
             updated_by: user.id,
         });
+    const [selectedParentSection, setSelectedParentSection] = useState(null);
     const [sections, setSections] = useState([]);
+
+    const dropDownFields = ["parent_id"];
+    const hiddenFields = ["book_id", "updated_by"];
 
     useEffect(() => {
         getSections();
     }, []);
 
     const getSections = async () => {
-        const response = await axios.get(`/api/books/${section.book_id}/sections`);
-        setSections(response.data.sections);
+        const response = await axios.get(
+            `/api/books/${section.book_id}/sections`
+        );
+
+        const flattenedList = response.data.sections.reduce((acc, section) => {
+            acc = acc.concat(flattenObject(section));
+            delete acc.all_descendants;
+            return acc;
+        }, []);
+
+        // Set sections data from flattened list order by id
+        setSections(
+            flattenedList
+                .filter((item) => item.id !== section.id)
+                .sort((a, b) => a.id - b.id)
+        );
     };
+
+    function flattenObject(obj) {
+        const result = [obj];
+        const descendants = obj.all_descendants || [];
+
+        for (const descendant of descendants) {
+            result.push(...flattenObject(descendant));
+        }
+        return result;
+    }
 
     const submit = async (e) => {
         e.preventDefault();
@@ -46,6 +74,27 @@ export default function SectionForm({ section, mode }) {
         get(route("books.edit", section.book_id));
     };
 
+    const handleParentSelect = (item) => {
+        console.log(item);
+        if (!item?.parent_id) {
+            setData("parent_id", null);
+            setSelectedParentSection(item);
+        }
+
+        if (item.parent_id === section.id) {
+            toast.error(`${item.title} is a child of ${section.title} section`);
+            return;
+        }
+
+        setData("parent_id", item.id);
+        setSelectedParentSection(item);
+    };
+
+    const createInputLabel = (str) => {
+        str = str.charAt(0).toUpperCase() + str.slice(1);
+        return str.replace("_", " ");
+    };
+
     return (
         <section className="max-w-xl mx-auto mt-10 mb-10 space-y-6">
             <header>
@@ -55,20 +104,37 @@ export default function SectionForm({ section, mode }) {
             </header>
 
             <form onSubmit={submit} className="mt-6 space-y-6">
-                <Dropdown
-                    items={sections}
-                    onSelect={(item) => setSelectedItem(item)}
-                />
-
                 {Object.keys(data).map((key) => {
+                    if (hiddenFields.includes(key)) return null;
+
+                    if (dropDownFields.includes(key)) {
+                        return sections && sections.length > 0 ? (
+                            <div key={key}>
+                                <InputLabel
+                                    htmlFor={key}
+                                    style={{ display: "block" }}
+                                    value={createInputLabel(key)}
+                                />
+                                <Dropdown
+                                    items={sections}
+                                    id="id"
+                                    title="Select Parent Section"
+                                    label="title"
+                                    item={selectedParentSection}
+                                    onSelect={(item) =>
+                                        handleParentSelect(item)
+                                    }
+                                />
+                            </div>
+                        ) : null;
+                    }
+
                     return (
                         <div key={key}>
                             <InputLabel
                                 htmlFor={key}
                                 style={{ display: "block" }}
-                                value={
-                                    key.charAt(0).toUpperCase() + key.slice(1)
-                                }
+                                value={createInputLabel(key)}
                             />
 
                             <TextInput

@@ -14,16 +14,7 @@ export default function BookForm({ book, mode, className }) {
     const user = usePage().props.auth.user;
     const [isModalOpen, setModalOpen] = useState(false);
     const [sectionMode, setSectionMode] = useState("create");
-
-    const [section, setSection] = useState({
-        book_id: 0,
-        parent_id: 0,
-        title: "",
-        content: "",
-        nesting_level: 0,
-        order: 0,
-        updated_by: 0,
-    });
+    const [section, setSection] = useState(null);
 
     const { data, setData, get, errors, processing, recentlySuccessful } =
         useForm({
@@ -206,13 +197,13 @@ export default function BookForm({ book, mode, className }) {
                     <button
                         onClick={() => {
                             setSection({
-                                book_id: 0,
-                                parent_id: 0,
+                                book_id: book.id,
+                                parent_id: null,
                                 title: "",
                                 content: "",
                                 nesting_level: 0,
                                 order: 0,
-                                updated_by: 0,
+                                updated_by: user.id,
                             });
                             setSectionMode("create");
 
@@ -235,7 +226,7 @@ export default function BookForm({ book, mode, className }) {
                     show={isModalOpen}
                     onClose={() => setModalOpen(false)}
                 >
-                    <SectionForm section={section} mode={sectionMode} />
+                    <SectionForm section={section}  mode={sectionMode} />
                 </Modal>
             )}
         </div>

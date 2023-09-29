@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Section;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SectionController extends Controller
 {
@@ -90,7 +91,12 @@ class SectionController extends Controller
             return response()->json(['error'=> 'Section not found'], 404);
         }
 
-        return $section->update($request->all());
+        try {
+            return $section->update($request->all());
+        } catch (Exception $e) {
+            Log::error("An error occurred: " . $e->getMessage());
+            return response()->json(['error'=> $e->getMessage()], 500);
+        }
 
     }
 

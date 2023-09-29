@@ -1,38 +1,46 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 
-function Dropdown({ items, onSelect }) {
+function Dropdown({ items, item, title, id, label, onSelect }) {
     const [isOpen, setOpen] = useState(false);
     const dropdownRef = useRef(null);
 
     const handleSelect = (item) => {
+        console.log('handleSelect',item);
         onSelect(item);
         setOpen(false);
     };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (
+                dropdownRef.current &&
+                !dropdownRef.current.contains(event.target)
+            ) {
                 setOpen(false);
             }
         };
 
         document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
+        return () =>
+            document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     return (
         <div ref={dropdownRef} className="relative">
-            <button onClick={() => setOpen(!isOpen)}>Select an item</button>
-
-            {isOpen && (
-                <ul className="absolute left-0 mt-2 w-48 border rounded-md shadow-md bg-white">
-                    {items.map((item, index) => (
-                        <li key={index} className="cursor-pointer hover:bg-gray-200" onClick={() => handleSelect(item)}>
-                            {item}
-                        </li>
+            <div className="relative inline-block w-64">
+                <select
+                    onChange={handleSelect}
+                    value={item ?? null}
+                    className="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                >
+                    <option value={null}>{title}</option>
+                    {items.map((item) => (
+                        <option key={item[id]} value={item}>
+                            {item[label]}
+                        </option>
                     ))}
-                </ul>
-            )}
+                </select>
+            </div>
         </div>
     );
 }
